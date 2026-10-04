@@ -579,9 +579,10 @@ export class Campus {
     this.timer.update();
     const dt = Math.min(this.timer.getDelta(), 0.05);
     const t = this.timer.getElapsed();
-    const motion = this.reducedMotion ? 0 : 1;
-    if (motion) for (const fn of this.ticks) fn(t, dt);
-    else this.marker.g.visible && this.ticks.at(-1)(t, 0);
+    // Kampus hayoti (mashinalar, odamlar, uchqunlar) har doim harakatlanadi.
+    // Windows'da "Animatsiya effektlari" o'chirilgan bo'lsa ham (prefers-reduced-motion) sahna qotib qolmasin:
+    // bunday holatda faqat kameraning uchib borishi o'rniga darhol o'tish ishlatiladi (focus → #snap).
+    for (const fn of this.ticks) fn(t, dt);
 
     // Kamerani silliq maqsadga olib borish
     const k = 1 - Math.pow(0.0025, dt);
