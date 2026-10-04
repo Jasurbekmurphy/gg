@@ -480,6 +480,8 @@ export class Campus {
     const w = el.clientWidth;
     const h = el.clientHeight;
     if (!w || !h) return;
+    // Hajm o'zgarsa kanvas tozalanadi: darhol qayta chizamiz, aks holda u oq bo'lib qoladi
+    if (this.size && this.size.w === w && this.size.h === h) return;
     this.size = { w, h };
     this.renderer.setSize(w, h, false);
     const aspect = w / h;
@@ -491,6 +493,7 @@ export class Campus {
     this.camera.updateProjectionMatrix();
     Object.assign(this.goal, this.#offsetFor(this.active));
     this.#applyOffset();
+    if (!this.contextLost && this.controls) this.renderer.render(this.scene, this.camera);
   }
 
   // Panellar sahnani to'smasligi uchun kadrni surish (ekran ulushida)

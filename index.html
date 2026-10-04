@@ -34,7 +34,7 @@
 
     <main>
       <!-- 3D kampus -->
-      <section id="hero" class="relative h-[100svh] min-h-[620px] overflow-hidden" aria-label="Interaktiv 3D kampus">
+      <section id="hero" class="relative h-[min(100svh,920px)] min-h-[620px] overflow-hidden" aria-label="Interaktiv 3D kampus">
         <canvas id="campus" class="absolute inset-0 size-full outline-none"></canvas>
         <div id="pins" class="pointer-events-none absolute inset-0"></div>
 
@@ -66,7 +66,7 @@
         <!-- Tanlangan kasb paneli -->
         <aside
           id="detail"
-          class="glass pointer-events-none absolute inset-x-2 bottom-2 z-20 max-h-[56svh] translate-y-6 overflow-y-auto rounded-3xl p-5 opacity-0 transition duration-500 lg:inset-x-auto lg:top-[84px] lg:right-5 lg:bottom-auto lg:max-h-[calc(100%-180px)] lg:w-[400px] lg:translate-x-6 lg:translate-y-0"
+          class="glass pointer-events-none absolute inset-x-2 bottom-2 z-20 max-h-[min(56svh,520px)] translate-y-6 overflow-y-auto rounded-3xl p-5 opacity-0 transition duration-500 lg:inset-x-auto lg:top-[84px] lg:right-5 lg:bottom-auto lg:max-h-[calc(100%-180px)] lg:w-[400px] lg:translate-x-6 lg:translate-y-0"
           aria-live="polite"
         ></aside>
 

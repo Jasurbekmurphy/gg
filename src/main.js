@@ -383,6 +383,8 @@ async function initCampus() {
   new IntersectionObserver(([e]) => (e.isIntersecting && !document.hidden ? campus.start() : campus.stop())).observe($('#hero'));
   document.addEventListener('visibilitychange', () => (document.hidden ? campus.stop() : campus.start()));
   campus.start();
+  // Kuzatuvchi noto'g'ri to'xtatib qo'ysa ham, sahnaga tegilganda animatsiya qayta yuradi
+  $('#hero').addEventListener('pointerdown', () => !document.hidden && campus.start());
 
   const fromHash = location.hash.match(/^#kasb-(\w+)/)?.[1];
   if (fromHash && byId.has(fromHash)) select(fromHash);
