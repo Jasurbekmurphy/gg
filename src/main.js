@@ -1,16 +1,18 @@
-import { faqs, features, professions, site, stats, steps } from './data.js';
+import { dual, faqs, features, metrics, professions, site, stats, steps } from './data.js';
 import { icon } from './icons.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const byId = new Map(professions.map((p) => [p.id, p]));
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const label = (p) => p.label ?? p.title.split(' ')[0];
 const fmt = (n) => n.toLocaleString('ru-RU').replace(/ /g, ' ');
 
 // ---------------- Statik bo'limlar ----------------
 const nav = [
   ['#kasblar', 'Kasblar'],
   ['#afzalliklar', 'Afzalliklar'],
+  ['#dual', "Dual ta'lim"],
   ['#qabul', 'Qabul'],
   ['#savollar', 'Savollar'],
   ['#aloqa', 'Aloqa'],
@@ -68,9 +70,10 @@ function renderStatic() {
         <h3 class="mt-5 text-xl font-bold">${p.title}</h3>
         <p class="mt-2 flex-1 text-[15px] leading-relaxed text-slate-600">${p.desc}</p>
         <div class="mt-5 flex flex-wrap gap-1.5 text-xs font-semibold">
-          <span class="rounded-full bg-slate-100 px-2.5 py-1">${p.duration}</span>
-          <span class="rounded-full bg-slate-100 px-2.5 py-1">${p.form}</span>
-          <span class="rounded-full bg-slate-100 px-2.5 py-1">${p.seats} o'rin</span>
+          ${[p.duration, p.form, p.seats && `${p.seats} o'rin`]
+            .filter(Boolean)
+            .map((t) => `<span class="rounded-full bg-slate-100 px-2.5 py-1">${t}</span>`)
+            .join('')}
         </div>
         <a href="#" data-show="${p.id}" class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold" style="color:${p.color}">
           3D kampusda ko'rish ${icon('arrow', 'size-4 transition group-hover:translate-x-1')}
@@ -85,6 +88,25 @@ function renderStatic() {
         <div class="grid size-11 place-items-center rounded-xl bg-brand-500/20 text-sky-300">${icon(f.icon)}</div>
         <h3 class="mt-4 text-lg font-bold">${f.title}</h3>
         <p class="mt-1.5 text-slate-300">${f.text}</p>
+      </div>`,
+    )
+    .join('');
+
+  $('#dualSteps').innerHTML = dual
+    .map(
+      (d, i) => `<li class="reveal rounded-2xl bg-white p-5 ring-1 ring-slate-100" style="--d:${i * 80}ms">
+        <span class="grid size-9 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-600">${i + 1}</span>
+        <h3 class="mt-3 font-bold">${d.title}</h3>
+        <p class="mt-1 text-sm text-slate-600">${d.text}</p>
+      </li>`,
+    )
+    .join('');
+
+  $('#metrics').innerHTML = metrics
+    .map(
+      (m) => `<div>
+        <div class="flex justify-between gap-4 text-sm font-semibold"><span>${m.label}</span><span class="tabular-nums text-brand-600">${m.value}%</span></div>
+        <div class="mt-2 h-2 overflow-hidden rounded-full bg-brand-50"><div class="meter h-full rounded-full bg-brand-600" style="--w:${m.value}%"></div></div>
       </div>`,
     )
     .join('');
@@ -152,7 +174,7 @@ function renderDock() {
       (p) => `<button role="tab" data-id="${p.id}" aria-selected="false"
         class="flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-white aria-selected:bg-white aria-selected:text-ink aria-selected:shadow-md">
         <span class="grid size-7 place-items-center rounded-lg text-white" style="background:${p.color}">${icon(p.prop, 'size-4')}</span>
-        <span class="whitespace-nowrap">${p.title.split(' ')[0]}</span>
+        <span class="whitespace-nowrap">${label(p)}</span>
       </button>`,
     )
     .join('');
@@ -183,7 +205,7 @@ function renderPins() {
       (p) => `<button class="pin pointer-events-auto opacity-0 transition-opacity duration-300" data-id="${p.id}" style="color:${p.color}" aria-label="${p.title}">
         <span class="pin-body flex items-center gap-1.5 rounded-full bg-white p-1 text-xs font-bold text-ink shadow-lg ring-1 ring-black/5 transition hover:scale-110 sm:pr-3">
           <span class="grid size-6 place-items-center rounded-full text-white" style="background:${p.color}">${icon(p.prop, 'size-3.5')}</span>
-          <span class="hidden whitespace-nowrap sm:inline">${p.title.split(' ')[0]}</span>
+          <span class="hidden whitespace-nowrap sm:inline">${label(p)}</span>
         </span>
         <span class="stem"></span>
       </button>`,
@@ -214,10 +236,10 @@ function renderDetail(p) {
     </div>
     <div class="mt-4 flex items-center gap-2 text-xs font-semibold">
       <span class="rounded-md bg-emerald-50 px-2 py-1 text-emerald-700">${site.admission.open ? 'Qabul ochiq' : 'Qabul yopiq'}</span>
-      <span class="text-slate-500">${p.duration} · ${p.form}</span>
+      <span class="text-slate-500">${[p.duration, p.form].filter(Boolean).join(' · ')}</span>
     </div>
     <p class="mt-3 text-[15px] leading-relaxed text-slate-600">${p.desc}</p>
-    <div class="mt-3">${row("O'qish muddati", p.duration)}${row("Ta'lim shakli", p.form)}${row("O'rinlar soni", `${p.seats} ta`)}</div>
+    <div class="mt-3">${p.duration ? row("O'qish muddati", p.duration) : ''}${row("Ta'lim shakli", p.form)}${p.seats ? row("O'rinlar soni", `${p.seats} ta`) : ''}</div>
     <p class="mt-4 text-xs font-bold tracking-wider text-slate-400 uppercase">O'rganasiz</p>
     <div class="mt-2 flex flex-wrap gap-1.5">${p.skills.map((s) => `<span class="rounded-lg px-2.5 py-1 text-xs font-semibold" style="background:${p.color}14;color:${p.color}">${s}</span>`).join('')}</div>
     <p class="mt-4 text-xs font-bold tracking-wider text-slate-400 uppercase">Kim bo'lib ishlaysiz</p>

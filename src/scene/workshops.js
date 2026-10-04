@@ -224,6 +224,56 @@ const props = {
   },
 };
 
+// Turar joy servisi: elektr ustunlari va transformator (elektr montaj qismi)
+props.housing = props.electric;
+
+// Metallarga ishlov: tokarlik dastgohi (aylanuvchi patron va detal), parmalash dastgohi
+props.metal = (color) => {
+  const g = new THREE.Group();
+  // Tokarlik dastgohi
+  g.add(at(box(3, 0.9, 0.9, C.navy), 0, 0.45, 0));
+  g.add(at(box(3.2, 0.12, 1, C.dark), 0, 0.96, 0));
+  g.add(at(box(0.8, 0.8, 0.9, color), -1.2, 1.4, 0)); // shpindel bloki
+  g.add(at(box(0.5, 0.5, 0.6, color), 1.3, 1.25, 0)); // ketingi babka
+  const chuck = at(cyl(0.32, 0.32, 0.25, C.metal, 16, { metalness: 0.7, roughness: 0.3 }), -0.7, 1.4, 0);
+  chuck.rotation.z = Math.PI / 2;
+  const part = at(cyl(0.12, 0.12, 1.6, '#cbd5e1', 12, { metalness: 0.8, roughness: 0.25 }), 0.25, 1.4, 0);
+  part.rotation.z = Math.PI / 2;
+  g.add(chuck, part);
+  const carriage = at(box(0.45, 0.3, 0.7, '#e2e8f0'), 0, 1.15, 0.25);
+  g.add(carriage);
+  g.add(at(person(color), 0, 0, 1.1));
+  // Parmalash dastgohi
+  const drill = new THREE.Group();
+  drill.add(at(box(0.8, 0.1, 0.8, C.dark), 0, 0.05, 0), at(cyl(0.08, 0.08, 2.2, C.metal, 8), 0, 1.1, -0.25));
+  drill.add(at(box(0.5, 0.5, 0.7, color), 0, 2, -0.05), at(box(0.5, 0.08, 0.5, C.dark), 0, 0.9, 0));
+  const bit = at(cyl(0.03, 0.03, 0.4, '#e2e8f0', 6), 0, 1.55, 0.05);
+  drill.add(bit);
+  g.add(at(drill, 2.8, 0, -0.3));
+  // Qirindilar (uchqunsiz, kumushrang)
+  const chips = Array.from({ length: 10 }, (_, i) => {
+    const c = at(box(0.06, 0.06, 0.06, '#e5e7eb', { r: 0, cast: false }), 0, -10, 0);
+    c.userData.o = i / 10;
+    g.add(c);
+    return c;
+  });
+  return {
+    group: g,
+    tick(t) {
+      chuck.rotation.x = t * 12;
+      part.rotation.x = t * 12;
+      carriage.position.x = Math.sin(t * 0.5) * 0.6;
+      bit.rotation.y = t * 20;
+      bit.position.y = 1.5 + Math.abs(Math.sin(t * 0.8)) * -0.15;
+      chips.forEach((c) => {
+        const k = (t * 0.9 + c.userData.o) % 1;
+        c.position.set(carriage.position.x + k * 0.4, 1.45 - k * k * 0.5, 0.15 + k * 0.5);
+        c.rotation.set(k * 9, k * 7, 0);
+      });
+    },
+  };
+};
+
 // Pavilyon + belgi. Old tomoni (+z) maydonchaga qaraydi.
 export function buildWorkshop(p) {
   const g = new THREE.Group();
@@ -235,7 +285,7 @@ export function buildWorkshop(p) {
   hall.add(at(box(3, 2.6, 0.12, C.glassDark, { r: 0.04 }), -1.6, 1.3, 1.6));
   for (let i = 0; i < 6; i++) hall.add(at(box(2.9, 0.06, 0.06, '#5b7bc0', { r: 0 }), -1.6, 0.3 + i * 0.4, 1.68));
   hall.add(at(box(2.2, 1.2, 0.1, C.glass, { r: 0.04, opts: { metalness: 0.3, roughness: 0.2 } }), 2.1, 2.1, 1.6));
-  const plate = sign(p.title.split(' ')[0].toUpperCase(), 3.6, 0.6, { bg: '#ffffff', fg: p.color, size: 60 });
+  const plate = sign((p.label ?? p.title.split(' ')[0]).toUpperCase(), 3.6, 0.6, { bg: '#ffffff', fg: p.color, size: 60 });
   plate.position.set(0, 3.3, 1.62);
   hall.add(plate);
   // Ventilyatorlar tomda (rasmdagi kabi)

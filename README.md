@@ -13,12 +13,13 @@ npm run preview   # build natijasini ko'rish
 
 ## Ma'lumotlarni o'zgartirish
 
-Barcha matnlar bitta faylda: **`src/data.js`**. `TODO` bilan belgilangan joylarni haqiqiy ma'lumotlar bilan almashtiring:
+Barcha matnlar bitta faylda: **`src/data.js`**. Asosiy ma'lumotlar (nom, aloqa, 7 yo'nalish, xodimlar, ko'rsatkichlar) texnikum2son.com dan olingan. `TODO` bilan belgilangan joylarni haqiqiy ma'lumotlar bilan almashtiring:
 
 - `site`: nom, telefon, email, manzil, Telegram/Instagram, xarita (`mapEmbed`), qabul havolasi
 - `stats`: raqamlar (o'quvchilar soni, ishga joylashish foizi...)
 - `professions`: yo'nalishlar (nomi, tavsifi, muddat, o'rinlar, ko'nikmalar)
 - `features`, `steps`, `faqs`: afzalliklar, qabul bosqichlari, savollar
+- `dual`, `metrics`: dual ta'lim bosqichlari va ko'rsatkichlar
 
 ## Tuzilishi
 
