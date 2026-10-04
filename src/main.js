@@ -269,7 +269,14 @@ function select(id) {
   $(`#dockList [data-id="${id}"]`)?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   $('#hint')?.remove();
   if (campus) id ? campus.focus(id) : campus.home();
-  history.replaceState(null, '', id ? `#kasb-${id}` : location.pathname + location.search);
+  // Havolani yangilash faqat sayt o'zi ochilganda (iframe/ko'rish oynasi ichida emas)
+  if (window.self === window.top) {
+    try {
+      history.replaceState(null, '', id ? `#kasb-${id}` : location.pathname + location.search);
+    } catch {
+      /* ba'zi brauzerlar ruxsat bermaydi */
+    }
+  }
 }
 
 function userSelect(id) {

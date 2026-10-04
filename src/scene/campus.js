@@ -31,6 +31,18 @@ export class Campus {
     this.resize();
     this.home(true);
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
+
+    // Telefon/planshet GPU xotirasi tugasa WebGL konteksti yo'qoladi (oq ekran, sahna qotadi).
+    // Kontekst qaytganda atrof-muhit yoritilishini qayta yaratib, animatsiyani davom ettiramiz.
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      this.contextLost = true;
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.contextLost = false;
+      this.#buildEnvironment();
+      this.timer.reset?.();
+    });
   }
 
   // ---------- Sozlash ----------
@@ -44,11 +56,17 @@ export class Campus {
     r.shadowMap.type = THREE.PCFShadowMap;
   }
 
+  #buildEnvironment() {
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment?.dispose();
+    this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+  }
+
   #initScene() {
     const s = (this.scene = new THREE.Scene());
     s.background = new THREE.Color(C.bg);
-    const pmrem = new THREE.PMREMGenerator(this.renderer);
-    s.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    this.#buildEnvironment();
     s.environmentIntensity = 0.45;
 
     s.add(new THREE.HemisphereLight('#ffffff', '#b9c8ee', 1.6));
@@ -554,6 +572,7 @@ export class Campus {
   }
 
   #frame() {
+    if (this.contextLost) return;
     this.timer.update();
     const dt = Math.min(this.timer.getDelta(), 0.05);
     const t = this.timer.getElapsed();
