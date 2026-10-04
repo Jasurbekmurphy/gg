@@ -5,71 +5,92 @@
 // ============================================================
 
 export const site = {
-  shortName: '2-son texnikum',
-  fullName: '2-son texnikumi', // TODO: rasmiy to'liq nomi
+  shortName: 'Paxtaobod 2-son texnikumi',
+  fullName: 'Paxtaobod tuman 2-son texnikumi',
   domain: 'texnikum2son.com',
-  slogan: 'Kasb — kelajak kaliti',
-  phone: '+998 00 000 00 00', // TODO
-  email: 'info@texnikum2son.com', // TODO
-  address: "Shahar, tuman, ko'cha, uy", // TODO
-  workHours: 'Dush–Juma, 08:30–17:00',
-  telegram: 'https://t.me/', // TODO
-  instagram: 'https://instagram.com/', // TODO
+  slogan: "Kasbiy ta'lim, dual ta'lim va amaliy ko'nikmalar",
+  phone: '+998 55 201 26 65',
+  email: 'info@texnikum2son.com',
+  address: "Andijon viloyati, Paxtaobod tumani, Shovruq MFY, Chamanzor ko'chasi",
+  workHours: 'Dush–Juma, 08:30–17:00', // TODO: tekshiring
+  telegram: 'https://t.me/texnikum2son',
+  instagram: 'https://www.instagram.com/paxtaobod_2son_texnikumi',
   // Google Maps → Ulashish → Xaritani joylashtirish → src manzili
   mapEmbed: '', // TODO
   admission: {
     open: true,
-    deadline: '25-avgust', // TODO
+    deadline: '25-avgust', // TODO: tekshiring
     applyUrl: 'https://my.edu.uz', // TODO: hujjat topshirish havolasi
   },
 };
 
+// Manba: texnikum2son.com (2026-yil oktabr)
 export const stats = [
-  { value: 1200, suffix: '+', label: "O'quvchilar", note: 'joriy o‘quv yili' }, // TODO
-  { value: 6, suffix: '', label: "Yo'nalishlar", note: 'zamonaviy kasblar' },
-  { value: 87, suffix: '%', label: 'Ishga joylashish', note: 'bitiruvchilar' }, // TODO
-  { value: 40, suffix: '+', label: 'Hamkor korxonalar', note: 'amaliyot joylari' }, // TODO
+  { value: 7, suffix: '', label: "Yo'nalishlar", note: 'kunduzgi va dual' },
+  { value: 90, suffix: '%', label: 'Ishga joylashish', note: 'bitiruvchilar' },
+  { value: 79, suffix: '', label: 'Xodimlar', note: '28 pedagog, 17 usta' },
+  { value: 65, suffix: '', label: 'Kompyuterlar', note: 'IT sinflarda' },
+];
+
+// Dual ta'lim: nazariya texnikumda, amaliyot korxonada
+export const dual = [
+  { title: 'Nazariy ta’lim', text: 'Malakali pedagoglar bilan auditoriya va raqamli sinflarda.' },
+  { title: 'Ustaxonada mashq', text: '17 nafar ishlab chiqarish ta’limi ustasi rahbarligida.' },
+  { title: 'Korxonada amaliyot', text: 'Hamkor korxonalarda haqiqiy ish jarayoni.' },
+  { title: 'Diplom va ish', text: 'Bitiruvchilar diplom bilan birga ish tajribasiga ega bo‘ladi.' },
+];
+
+// Manba: texnikum2son.com
+export const metrics = [
+  { label: 'Ishga joylashish', value: 90 },
+  { label: 'Dual ta’lim qamrovi', value: 85 },
+  { label: 'Ustaxonalar jihozlanishi', value: 88 },
+  { label: 'Raqamli sinflar', value: 92 },
 ];
 
 // zone: [x, z] — 3D kampusdagi ustaxona joylashuvi (o'zgartirmang)
 // prop: 3D sahnadagi ustaxona belgisi turi
+// label: 3D kampusdagi qisqa nom. duration/seats: noma'lum bo'lsa null qoldiring (sahifada ko'rinmaydi).
 export const professions = [
   {
     id: 'it',
-    title: 'Kompyuter texnologiyalari',
-    short: 'Dasturlash, tarmoq va kompyuter servisi',
-    desc: "Veb-sayt va ilovalar yaratish, kompyuter tarmoqlarini sozlash hamda texnik xizmat ko'rsatishni amaliyotda o'rganasiz.",
-    duration: '2 yil',
-    form: 'Kunduzgi',
-    seats: 60,
-    skills: ['HTML, CSS, JavaScript', 'Kompyuter yig‘ish', 'Tarmoq sozlash', 'Ofis dasturlari'],
-    careers: ['Frontend dasturchi', 'Tizim administratori', 'IT-mutaxassis'],
+    title: 'Raqamli axborotlarni qayta ishlash',
+    label: 'Raqamli',
+    short: 'Kompyuter, ofis dasturlari va ma’lumotlar',
+    desc: "Kompyuter savodxonligi, ofis dasturlari, ma'lumotlar bazasi va grafik dizayn asoslarini 65 ga yaqin kompyuterli sinflarda o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
+    skills: ['Ofis dasturlari', 'Ma’lumotlar bazasi', 'Grafik dizayn', 'Kompyuter yig‘ish'],
+    careers: ['Operator', 'Kompyuter mutaxassisi', 'Dizayner yordamchisi'],
     color: '#2563eb',
     prop: 'it',
     zone: [-19, -5],
   },
   {
-    id: 'electric',
-    title: 'Elektr montaj',
-    short: 'Elektr tarmoqlari va uskunalar',
-    desc: "Turar-joy va sanoat binolarida elektr tarmoqlarini o'rnatish, ta'mirlash va xavfsiz ishlatish ko'nikmalarini egallaysiz.",
-    duration: '2 yil',
-    form: 'Kunduzgi',
-    seats: 50,
-    skills: ['Elektr sxemalar', 'Montaj ishlari', 'O‘lchov asboblari', 'Xavfsizlik texnikasi'],
-    careers: ['Elektromontyor', 'Elektrik', 'Energetik yordamchisi'],
+    id: 'housing',
+    title: 'Turar joy servisi ustasi',
+    label: 'Servis',
+    short: 'Santexnika, elektr va pardozlash',
+    desc: "Turar-joy binolarida santexnika, elektr montaj va pardozlash ishlarini bajarish, uy-joyni saqlashni o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
+    skills: ['Elektr montaj', 'Santexnika', 'Pardozlash', 'Xavfsizlik texnikasi'],
+    careers: ['Uy-joy ustasi', 'Elektrik', 'Santexnik'],
     color: '#f59e0b',
-    prop: 'electric',
+    prop: 'housing',
     zone: [19, -5],
   },
   {
     id: 'auto',
-    title: 'Avtomobil servisi',
-    short: "Avtomobillarga texnik xizmat ko'rsatish",
-    desc: "Dvigatel, transmissiya va elektr jihozlarini diagnostika qilish hamda ta'mirlashni zamonaviy ustaxonada o'rganasiz.",
-    duration: '2 yil',
-    form: 'Kunduzgi',
-    seats: 50,
+    title: "Avtomobillarga texnik xizmat ko'rsatish",
+    label: 'Avtoservis',
+    short: 'Diagnostika va ta’mirlash',
+    desc: "Dvigatel, transmissiya va elektr jihozlarini diagnostika qilish hamda ta'mirlashni avtoustaxonada o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
     skills: ['Kompyuter diagnostikasi', 'Dvigatel ta‘miri', 'Yurish qismi', 'Avtoelektrika'],
     careers: ['Avtomexanik', 'Diagnost', 'Avtoelektrik'],
     color: '#ef4444',
@@ -78,14 +99,15 @@ export const professions = [
   },
   {
     id: 'welding',
-    title: 'Payvandlash ishlari',
+    title: 'Payvandchilik',
+    label: 'Payvand',
     short: 'Elektr va gaz payvandlash',
-    desc: "Metall konstruksiyalarni turli usullarda payvandlash, chizmalarni o'qish va sifat nazoratini o'rganasiz.",
-    duration: '2 yil',
-    form: 'Kunduzgi',
-    seats: 40,
-    skills: ['Elektr payvand', 'Argon payvand', 'Chizma o‘qish', 'Metall kesish'],
-    careers: ['Payvandchi', 'Metall konstruktor', 'Montajchi'],
+    desc: "Metall konstruksiyalarni turli usullarda payvandlash, chizmalarni o'qish va chok sifatini nazorat qilishni o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
+    skills: ['Elektr payvand', 'Gaz payvand', 'Chizma o‘qish', 'Metall kesish'],
+    careers: ['Payvandchi', 'Montajchi', 'Metall konstruktor'],
     color: '#8b5cf6',
     prop: 'welding',
     zone: [-7, 18],
@@ -93,11 +115,12 @@ export const professions = [
   {
     id: 'cooking',
     title: 'Oshpazlik',
+    label: 'Oshpazlik',
     short: 'Milliy va jahon taomlari',
-    desc: "Milliy va xalqaro taomlar tayyorlash, qandolatchilik va oshxona boshqaruvini professional oshxonada o'rganasiz.",
-    duration: '2 yil',
-    form: 'Kunduzgi',
-    seats: 40,
+    desc: "Milliy va xalqaro taomlar tayyorlash, qandolatchilik va oshxona boshqaruvini o'quv oshxonasida o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
     skills: ['Milliy taomlar', 'Qandolatchilik', 'Sanitariya qoidalari', 'Menyu tuzish'],
     careers: ['Oshpaz', 'Qandolatchi', 'Oshxona boshlig‘i'],
     color: '#10b981',
@@ -106,17 +129,33 @@ export const professions = [
   },
   {
     id: 'tailoring',
-    title: 'Tikuvchilik va dizayn',
+    title: 'Tikuvchilik',
+    label: 'Tikuvchilik',
     short: 'Kiyim modellashtirish va tikish',
-    desc: "Kiyim dizayni, andoza chizish, bichish va zamonaviy tikuv uskunalarida ishlashni o'rganasiz.",
-    duration: '2 yil',
-    form: 'Kunduzgi',
-    seats: 40,
-    skills: ['Andoza chizish', 'Bichish', 'Tikuv uskunalari', 'Moda dizayni'],
-    careers: ['Tikuvchi', 'Modelyer', 'Dizayner'],
+    desc: "Andoza chizish, bichish, tikuv mashinalarida ishlash va kiyim modellashtirishni o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
+    skills: ['Andoza chizish', 'Bichish', 'Tikuv uskunalari', 'Modellashtirish'],
+    careers: ['Tikuvchi', 'Modelyer', 'Bichuvchi'],
     color: '#ec4899',
     prop: 'tailoring',
     zone: [20, 13],
+  },
+  {
+    id: 'metal',
+    title: 'Metallarga qayta ishlov berish',
+    label: 'Metall',
+    short: 'Tokarlik va frezerlash',
+    desc: "Tokarlik va frezerlash dastgohlarida ishlash, o'lchov asboblari va texnik chizmani o'qishni o'rganasiz.",
+    duration: null, // TODO
+    form: 'Kunduzgi · Dual',
+    seats: null, // TODO
+    skills: ['Tokarlik dastgohi', 'Frezerlash', 'O‘lchov asboblari', 'Chizma o‘qish'],
+    careers: ['Tokar', 'Frezerchi', 'Chilangar'],
+    color: '#0891b2',
+    prop: 'metal',
+    zone: [-31, 3],
   },
 ];
 
@@ -138,7 +177,7 @@ export const steps = [
 ];
 
 export const faqs = [
-  { q: "Kimlar o'qishga kira oladi?", a: "9-sinfni tamomlagan yoshlar va umumiy o'rta ma'lumotga ega bo'lganlar." }, // TODO
+  { q: "Kimlar o'qishga kira oladi?", a: "9 va 11-sinf bitiruvchilari. Ta'lim kunduzgi va dual shaklda olib boriladi." },
   { q: "O'qish pullikmi?", a: "Davlat buyurtmasi asosida o'qish bepul. Kontrakt asosidagi o'rinlar ham mavjud." }, // TODO
   { q: 'Qanday hujjatlar kerak?', a: "Pasport (yoki guvohnoma), ma'lumot hujjati, 3×4 o'lchamdagi 6 dona rasm, 086-shakldagi tibbiy ma'lumotnoma." },
   { q: 'Yotoqxona bormi?', a: "Ha, boshqa hududlardan kelgan o'quvchilar uchun yotoqxona mavjud." }, // TODO

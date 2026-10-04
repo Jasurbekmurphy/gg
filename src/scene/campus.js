@@ -31,6 +31,18 @@ export class Campus {
     this.resize();
     this.home(true);
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
+
+    // Telefon/planshet GPU xotirasi tugasa WebGL konteksti yo'qoladi (oq ekran, sahna qotadi).
+    // Kontekst qaytganda atrof-muhit yoritilishini qayta yaratib, animatsiyani davom ettiramiz.
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      this.contextLost = true;
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.contextLost = false;
+      this.#buildEnvironment();
+      this.timer.reset?.();
+    });
   }
 
   // ---------- Sozlash ----------
@@ -44,11 +56,17 @@ export class Campus {
     r.shadowMap.type = THREE.PCFShadowMap;
   }
 
+  #buildEnvironment() {
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment?.dispose();
+    this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+  }
+
   #initScene() {
     const s = (this.scene = new THREE.Scene());
     s.background = new THREE.Color(C.bg);
-    const pmrem = new THREE.PMREMGenerator(this.renderer);
-    s.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    this.#buildEnvironment();
     s.environmentIntensity = 0.45;
 
     s.add(new THREE.HemisphereLight('#ffffff', '#b9c8ee', 1.6));
@@ -98,7 +116,7 @@ export class Campus {
     s.add(gateBack);
 
     // Maysalar
-    for (const [x, z, w, d] of [[-27, -17, 16, 9], [-26, 4, 10, 6], [26, 4, 10, 6], [-24, 22, 14, 3], [24, 22, 14, 3]]) {
+    for (const [x, z, w, d] of [[-27, -17, 16, 9], [26, 4, 10, 6], [-24, 22, 14, 3], [24, 22, 14, 3]]) {
       s.add(at(box(w, 0.1, d, C.lawn, { r: 0.05, cast: false }), x, 0.05, z));
     }
 
@@ -257,9 +275,9 @@ export class Campus {
   #trees() {
     const spots = [
       [-34, -20], [-30, -20], [-17, -20], [-13, -20], [13, -20], [16, -21], [34, -20],
-      [-35, -8], [-35, 0], [-35, 8], [35, -8], [35, 0], [35, 8],
+      [-35, -8], [35, -8], [35, 0], [35, 8],
       [-31, 22], [-26, 23], [-19, 23], [-13, 23], [13, 23], [19, 23], [26, 23], [31, 22],
-      [-12, -2], [12, -2], [-28, 3], [28, 3], [-4.5, 24], [4.5, 24],
+      [-12, -2], [12, -2], [28, 3], [-4.5, 24], [4.5, 24],
     ];
     spots.forEach(([x, z], i) => {
       const t = tree(0.9 + ((i * 37) % 10) / 22, i % 3 ? C.tree : C.treeDark);
@@ -462,6 +480,8 @@ export class Campus {
     const w = el.clientWidth;
     const h = el.clientHeight;
     if (!w || !h) return;
+    // Hajm o'zgarsa kanvas tozalanadi: darhol qayta chizamiz, aks holda u oq bo'lib qoladi
+    if (this.size && this.size.w === w && this.size.h === h) return;
     this.size = { w, h };
     this.renderer.setSize(w, h, false);
     const aspect = w / h;
@@ -473,6 +493,7 @@ export class Campus {
     this.camera.updateProjectionMatrix();
     Object.assign(this.goal, this.#offsetFor(this.active));
     this.#applyOffset();
+    if (!this.contextLost && this.controls) this.renderer.render(this.scene, this.camera);
   }
 
   // Panellar sahnani to'smasligi uchun kadrni surish (ekran ulushida)
@@ -554,12 +575,14 @@ export class Campus {
   }
 
   #frame() {
+    if (this.contextLost) return;
     this.timer.update();
     const dt = Math.min(this.timer.getDelta(), 0.05);
     const t = this.timer.getElapsed();
-    const motion = this.reducedMotion ? 0 : 1;
-    if (motion) for (const fn of this.ticks) fn(t, dt);
-    else this.marker.g.visible && this.ticks.at(-1)(t, 0);
+    // Kampus hayoti (mashinalar, odamlar, uchqunlar) har doim harakatlanadi.
+    // Windows'da "Animatsiya effektlari" o'chirilgan bo'lsa ham (prefers-reduced-motion) sahna qotib qolmasin:
+    // bunday holatda faqat kameraning uchib borishi o'rniga darhol o'tish ishlatiladi (focus → #snap).
+    for (const fn of this.ticks) fn(t, dt);
 
     // Kamerani silliq maqsadga olib borish
     const k = 1 - Math.pow(0.0025, dt);
