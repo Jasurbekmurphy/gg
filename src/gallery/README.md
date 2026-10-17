@@ -19,5 +19,5 @@ Rasm yoki qisqa videoni shu papkaga tashlang, sayt uni o'zi topadi. Kod yozish s
 | `metal/` | Metallga ishlov berish |
 | boshqa har qanday nom, masalan `tadbirlar/`, `kampus/` | "Tadbirlar", "Kampus" |
 
-Papkaga rasm qo'shgach `npm run build` qiling va `dist` papkasini Netlify'ga yuklang.
+Papkaga rasm qo'shib GitHub'ga push qiling: CI saytni yig'adi, serverda `bash /var/www/texnikum2son/deploy-update.sh` ni ishga tushiring.
 Papkada birorta rasm bo'lmasa, Galereya bo'limi saytda ko'rinmaydi.
