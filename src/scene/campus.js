@@ -298,7 +298,10 @@ export class Campus {
         bus.add(w);
       }
     }
-    bus.position.set(-40, 0, 28.2);
+    // O'ng tomonlama harakat (O'zbekiston): -x tomonga yuruvchi avtobus kampus tarafidagi bo'lakda,
+    // +x tomonga yuruvchi mashinalar narigi bo'lakda.
+    bus.position.set(40, 0, 28.2);
+    bus.rotation.y = Math.PI;
     this.scene.add(bus);
 
     const cars = ['#f59e0b', '#64748b'].map((c, i) => {
@@ -307,6 +310,7 @@ export class Campus {
       car.userData.speed = 7 + i * 3;
       car.userData.off = i * 35;
       car.position.z = 31;
+      car.rotation.y = 0;
       this.scene.add(car);
       return car;
     });
@@ -316,13 +320,12 @@ export class Campus {
       const cycle = 22;
       const k = t % cycle;
       let x;
-      if (k < 6) x = -42 + 42 * easeOut(k / 6);
+      if (k < 6) x = 42 - 42 * easeOut(k / 6);
       else if (k < 10) x = 0;
-      else x = 42 * easeIn((k - 10) / 12);
+      else x = -42 * easeIn((k - 10) / 12);
       bus.position.x = x;
       cars.forEach((car) => {
-        car.position.x = 42 - ((t * car.userData.speed + car.userData.off) % 84);
-        car.rotation.y = Math.PI;
+        car.position.x = -42 + ((t * car.userData.speed + car.userData.off) % 84);
       });
     });
   }
