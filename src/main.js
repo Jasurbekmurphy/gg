@@ -1,5 +1,6 @@
 import { dual, faqs, features, metrics, professions, site, stats, steps } from './data.js';
 import { icon } from './icons.js';
+import { media, mediaFor, openLightbox, renderGallery } from './gallery.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -12,6 +13,7 @@ const fmt = (n) => n.toLocaleString('ru-RU').replace(/ /g, ' ');
 const nav = [
   ['#kasblar', 'Kasblar'],
   ['#afzalliklar', 'Afzalliklar'],
+  ...(media.length ? [['#galereya', 'Galereya']] : []),
   ['#dual', "Dual ta'lim"],
   ['#qabul', 'Qabul'],
   ['#savollar', 'Savollar'],
@@ -217,6 +219,21 @@ function renderPins() {
   });
 }
 
+// Shu yo'nalish papkasidagi rasmlar (src/gallery/<id>/) panelda kichik lenta bo'lib chiqadi
+function photoStrip(p) {
+  const items = mediaFor(p.id);
+  if (!items.length) return '';
+  return `<p class="mt-4 text-xs font-bold tracking-wider text-slate-400 uppercase">Ustaxonadan suratlar</p>
+    <div class="no-scrollbar -mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1">${items
+      .slice(0, 8)
+      .map(
+        (m, i) => `<button type="button" class="strip-thumb" style="--tw-ring-color:${p.color}" data-photo="${i}" aria-label="${m.caption}">
+          ${m.type === 'video' ? `<video class="size-full object-cover" src="${m.src}#t=0.1" muted playsinline preload="metadata"></video><span class="absolute inset-0 grid place-items-center text-white">${icon('play', 'size-6 drop-shadow')}</span>` : `<img class="size-full object-cover" src="${m.thumb}" alt="${m.caption}" loading="lazy" />`}
+        </button>`,
+      )
+      .join('')}</div>`;
+}
+
 function renderDetail(p) {
   const i = professions.indexOf(p);
   const row = (k, v) => `<div class="flex justify-between gap-3 border-b border-slate-100 py-2 text-sm last:border-0"><span class="text-slate-500">${k}</span><span class="font-semibold">${v}</span></div>`;
@@ -240,6 +257,7 @@ function renderDetail(p) {
     </div>
     <p class="mt-3 text-[15px] leading-relaxed text-slate-600">${p.desc}</p>
     <div class="mt-3">${p.duration ? row("O'qish muddati", p.duration) : ''}${row("Ta'lim shakli", p.form)}${p.seats ? row("O'rinlar soni", `${p.seats} ta`) : ''}</div>
+    ${photoStrip(p)}
     <p class="mt-4 text-xs font-bold tracking-wider text-slate-400 uppercase">O'rganasiz</p>
     <div class="mt-2 flex flex-wrap gap-1.5">${p.skills.map((s) => `<span class="rounded-lg px-2.5 py-1 text-xs font-semibold" style="background:${p.color}14;color:${p.color}">${s}</span>`).join('')}</div>
     <p class="mt-4 text-xs font-bold tracking-wider text-slate-400 uppercase">Kim bo'lib ishlaysiz</p>
@@ -316,12 +334,17 @@ function initInteractive() {
   setTourBtn(false);
   $('#tourBtn').addEventListener('click', () => (tourTimer ? stopTour() : startTour()));
   $('#detail').addEventListener('click', (e) => {
+    const ph = e.target.closest('[data-photo]');
+    if (ph) {
+      stopTour();
+      return openLightbox(mediaFor(activeId), +ph.dataset.photo);
+    }
     const n = e.target.closest('[data-nav]')?.dataset.nav;
     if (n === undefined) return;
     n === '0' ? userSelect(null) : step(+n);
   });
   addEventListener('keydown', (e) => {
-    if (!activeId || e.target.closest('input,textarea')) return;
+    if (!activeId || e.target.closest('input,textarea') || document.querySelector('dialog[open]')) return;
     if (e.key === 'Escape') userSelect(null);
     if (e.key === 'ArrowRight') step(1);
     if (e.key === 'ArrowLeft') step(-1);
@@ -391,6 +414,9 @@ async function initCampus() {
 }
 
 // ---------------- Scroll effektlari ----------------
+let revealIO;
+const observeReveal = (root = document) => $$('.reveal', root).forEach((el) => revealIO.observe(el));
+
 function initReveal() {
   const countUp = (el) => {
     const target = +el.dataset.count;
@@ -403,20 +429,21 @@ function initReveal() {
     };
     requestAnimationFrame(tick);
   };
-  const io = new IntersectionObserver(
+  revealIO = new IntersectionObserver(
     (entries) =>
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
         e.target.classList.add('in');
         $$('[data-count]', e.target).forEach(countUp);
-        io.unobserve(e.target);
+        revealIO.unobserve(e.target);
       }),
     { threshold: 0.15 },
   );
-  $$('.reveal').forEach((el) => io.observe(el));
+  observeReveal();
 }
 
 renderStatic();
 initInteractive();
 initReveal();
+renderGallery(observeReveal);
 initCampus();
