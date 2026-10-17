@@ -26,9 +26,11 @@ export const site = {
 
 // Manba: texnikum2son.com (2026-yil oktabr)
 export const stats = [
-  { value: 7, suffix: '', label: "Yo'nalishlar", note: 'kunduzgi va dual' },
+  { value: 610, suffix: '', label: "O'quvchilar", note: 'kunduzgi va dual' },
   { value: 90, suffix: '%', label: 'Ishga joylashish', note: 'bitiruvchilar' },
+  { value: 80, suffix: '+', label: 'Korxonalar', note: 'bilan shartnoma' },
   { value: 79, suffix: '', label: 'Xodimlar', note: '28 pedagog, 17 usta' },
+  { value: 7, suffix: '', label: "Yo'nalishlar", note: 'zamonaviy kasblar' },
   { value: 65, suffix: '', label: 'Kompyuterlar', note: 'IT sinflarda' },
 ];
 
