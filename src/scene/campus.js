@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { C, at, box, cyl, mat, person, sign, sph, strip, tree } from './kit.js';
+import { C, at, box, cyl, mat, pavingTexture, person, sign, sph, strip, tree } from './kit.js';
 import { buildWorkshop } from './workshops.js';
 
 const PLAZA = new THREE.Vector3(0, 0, 6);
@@ -10,9 +10,10 @@ const CAM_DIR = new THREE.Vector3(38, 52, 60).normalize();
 const HOME_TARGET = new THREE.Vector3(0, 0, 3);
 
 export class Campus {
-  constructor(canvas, { professions, onSelect, onHover, reducedMotion = false }) {
+  constructor(canvas, { professions, onSelect, onHover, reducedMotion = false, gateText = '2-SON TEXNIKUM' }) {
     this.canvas = canvas;
     this.professions = professions;
+    this.gateText = gateText;
     this.onSelect = onSelect;
     this.onHover = onHover;
     this.reducedMotion = reducedMotion;
@@ -31,6 +32,18 @@ export class Campus {
     this.resize();
     this.home(true);
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
+
+    // Telefon/planshet GPU xotirasi tugasa WebGL konteksti yo'qoladi (oq ekran, sahna qotadi).
+    // Kontekst qaytganda atrof-muhit yoritilishini qayta yaratib, animatsiyani davom ettiramiz.
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      this.contextLost = true;
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.contextLost = false;
+      this.#buildEnvironment();
+      this.timer.reset?.();
+    });
   }
 
   // ---------- Sozlash ----------
@@ -44,11 +57,17 @@ export class Campus {
     r.shadowMap.type = THREE.PCFShadowMap;
   }
 
+  #buildEnvironment() {
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment?.dispose();
+    this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+  }
+
   #initScene() {
     const s = (this.scene = new THREE.Scene());
     s.background = new THREE.Color(C.bg);
-    const pmrem = new THREE.PMREMGenerator(this.renderer);
-    s.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    this.#buildEnvironment();
     s.environmentIntensity = 0.45;
 
     s.add(new THREE.HemisphereLight('#ffffff', '#b9c8ee', 1.6));
@@ -75,8 +94,16 @@ export class Campus {
     under.position.y = -1.6;
     under.receiveShadow = true;
     s.add(under);
-    s.add(at(box(76, 1.6, 60, C.baseSide, { r: 0.6 }), 0, -0.8, 4));
-    s.add(at(box(75, 0.2, 59, C.base, { r: 0.08, cast: false }), 0, -0.1, 4));
+    // Qatlamlar ustma-ust tushmasin: bir xil balandlikdagi yuzalar telefonda miltillaydi
+    s.add(at(box(76, 1.6, 60, C.baseSide, { r: 0.6 }), 0, -0.9, 4));
+    s.add(at(box(75, 0.2, 59, C.base, { r: 0.08, cast: false }), 0, -0.15, 4));
+    const tiles = new THREE.Mesh(
+      new THREE.PlaneGeometry(74.8, 58.8),
+      new THREE.MeshStandardMaterial({ map: pavingTexture(47, 37), roughness: 0.85, metalness: 0.02 }),
+    );
+    tiles.rotation.x = -Math.PI / 2;
+    tiles.receiveShadow = true;
+    s.add(at(tiles, 0, 0, 4));
 
     // Yo'l va mashinalar
     s.add(at(box(75, 0.08, 6.4, C.road, { r: 0.02, cast: false }), 0, 0.04, 29.6));
@@ -90,7 +117,7 @@ export class Campus {
       s.add(at(box(0.12, 1.4, 0.16, C.metal, { r: 0.02 }), x, 0.7, 25.8));
     }
     // Darvoza
-    const gate = at(sign('2-SON TEXNIKUM', 6, 0.8, { bg: C.trim, fg: '#ffffff', size: 58 }), 0, 3.4, 25.8);
+    const gate = at(sign(this.gateText, 6, 0.8, { bg: C.trim, fg: '#ffffff', size: 58 }), 0, 3.4, 25.8);
     s.add(gate, at(box(0.4, 3.8, 0.4, C.navy), -3.3, 1.9, 25.8), at(box(0.4, 3.8, 0.4, C.navy), 3.3, 1.9, 25.8));
     const gateBack = gate.clone();
     gateBack.rotation.y = Math.PI;
@@ -98,7 +125,7 @@ export class Campus {
     s.add(gateBack);
 
     // Maysalar
-    for (const [x, z, w, d] of [[-27, -17, 16, 9], [-26, 4, 10, 6], [26, 4, 10, 6], [-24, 22, 14, 3], [24, 22, 14, 3]]) {
+    for (const [x, z, w, d] of [[-27, -17, 16, 9], [26, 4, 10, 6], [-24, 22, 14, 3], [24, 22, 14, 3]]) {
       s.add(at(box(w, 0.1, d, C.lawn, { r: 0.05, cast: false }), x, 0.05, z));
     }
 
@@ -167,7 +194,7 @@ export class Campus {
     g.add(at(box(7, 0.3, 3, C.trim, { r: 0.1 }), 0, 3.7, 6.3));
     g.add(at(box(0.25, 3.6, 0.25, C.wall), -3.2, 1.8, 7.5), at(box(0.25, 3.6, 0.25, C.wall), 3.2, 1.8, 7.5));
     g.add(at(box(8, 0.25, 3.4, '#e2e8f0', { r: 0.05 }), 0, 0.12, 6.6));
-    const title = sign('2-SON TEXNIKUM', 9, 1.1, { bg: '#ffffff', fg: C.trim, size: 62 });
+    const title = sign(this.gateText, 9, 1.1, { bg: '#ffffff', fg: C.trim, size: 62 });
     title.position.set(0, 6.6, 5.08);
     g.add(title);
     g.position.set(0, 0, -10);
@@ -257,9 +284,9 @@ export class Campus {
   #trees() {
     const spots = [
       [-34, -20], [-30, -20], [-17, -20], [-13, -20], [13, -20], [16, -21], [34, -20],
-      [-35, -8], [-35, 0], [-35, 8], [35, -8], [35, 0], [35, 8],
+      [-35, -8], [35, -8], [35, 0], [35, 8],
       [-31, 22], [-26, 23], [-19, 23], [-13, 23], [13, 23], [19, 23], [26, 23], [31, 22],
-      [-12, -2], [12, -2], [-28, 3], [28, 3], [-4.5, 24], [4.5, 24],
+      [-12, -2], [12, -2], [28, 3], [-4.5, 24], [4.5, 24],
     ];
     spots.forEach(([x, z], i) => {
       const t = tree(0.9 + ((i * 37) % 10) / 22, i % 3 ? C.tree : C.treeDark);
@@ -280,7 +307,10 @@ export class Campus {
         bus.add(w);
       }
     }
-    bus.position.set(-40, 0, 28.2);
+    // O'ng tomonlama harakat (O'zbekiston): -x tomonga yuruvchi avtobus kampus tarafidagi bo'lakda,
+    // +x tomonga yuruvchi mashinalar narigi bo'lakda.
+    bus.position.set(40, 0, 28.2);
+    bus.rotation.y = Math.PI;
     this.scene.add(bus);
 
     const cars = ['#f59e0b', '#64748b'].map((c, i) => {
@@ -289,6 +319,7 @@ export class Campus {
       car.userData.speed = 7 + i * 3;
       car.userData.off = i * 35;
       car.position.z = 31;
+      car.rotation.y = 0;
       this.scene.add(car);
       return car;
     });
@@ -298,13 +329,12 @@ export class Campus {
       const cycle = 22;
       const k = t % cycle;
       let x;
-      if (k < 6) x = -42 + 42 * easeOut(k / 6);
+      if (k < 6) x = 42 - 42 * easeOut(k / 6);
       else if (k < 10) x = 0;
-      else x = 42 * easeIn((k - 10) / 12);
+      else x = -42 * easeIn((k - 10) / 12);
       bus.position.x = x;
       cars.forEach((car) => {
-        car.position.x = 42 - ((t * car.userData.speed + car.userData.off) % 84);
-        car.rotation.y = Math.PI;
+        car.position.x = -42 + ((t * car.userData.speed + car.userData.off) % 84);
       });
     });
   }
@@ -462,6 +492,8 @@ export class Campus {
     const w = el.clientWidth;
     const h = el.clientHeight;
     if (!w || !h) return;
+    // Hajm o'zgarsa kanvas tozalanadi: darhol qayta chizamiz, aks holda u oq bo'lib qoladi
+    if (this.size && this.size.w === w && this.size.h === h) return;
     this.size = { w, h };
     this.renderer.setSize(w, h, false);
     const aspect = w / h;
@@ -473,6 +505,7 @@ export class Campus {
     this.camera.updateProjectionMatrix();
     Object.assign(this.goal, this.#offsetFor(this.active));
     this.#applyOffset();
+    if (!this.contextLost && this.controls) this.renderer.render(this.scene, this.camera);
   }
 
   // Panellar sahnani to'smasligi uchun kadrni surish (ekran ulushida)
@@ -554,12 +587,14 @@ export class Campus {
   }
 
   #frame() {
+    if (this.contextLost) return;
     this.timer.update();
     const dt = Math.min(this.timer.getDelta(), 0.05);
     const t = this.timer.getElapsed();
-    const motion = this.reducedMotion ? 0 : 1;
-    if (motion) for (const fn of this.ticks) fn(t, dt);
-    else this.marker.g.visible && this.ticks.at(-1)(t, 0);
+    // Kampus hayoti (mashinalar, odamlar, uchqunlar) har doim harakatlanadi.
+    // Windows'da "Animatsiya effektlari" o'chirilgan bo'lsa ham (prefers-reduced-motion) sahna qotib qolmasin:
+    // bunday holatda faqat kameraning uchib borishi o'rniga darhol o'tish ishlatiladi (focus → #snap).
+    for (const fn of this.ticks) fn(t, dt);
 
     // Kamerani silliq maqsadga olib borish
     const k = 1 - Math.pow(0.0025, dt);
